@@ -1,4 +1,4 @@
-# $Id: Signal.pm,v 1.2 1997-05-15 23:29:44-04 roderick Exp $
+# $Id: Signal.pm,v 1.4 1998-10-27 16:16:13-05 roderick Exp $
 #
 # Copyright (c) 1997 Roderick Schertler.  All rights reserved.  This
 # program is free software; you can redistribute it and/or modify it
@@ -12,7 +12,7 @@ use vars	qw($VERSION @ISA @EXPORT_OK $AUTOLOAD %Sig_num @Sig_name);
 
 require Exporter;
 
-$VERSION	= 0.02;
+$VERSION	= '1.00';
 @ISA		= qw(Exporter);
 @EXPORT_OK	= qw(sig_num sig_name sig_translate_setup %Sig_num @Sig_name);
 %Sig_num	= ();
@@ -25,8 +25,16 @@ sub sig_translate_setup () {
     return if %Sig_num && @Sig_name;
 
     require Config;
+
+    # In 5.005 the sig_num entries are comma separated and there's a
+    # trailing 0.
+    my $num = $Config::Config{'sig_num'};
+    if ($num =~ s/,//g) {
+	$num =~ s/\s+0$//;
+    }
+
     my @name	= split ' ', $Config::Config{'sig_name'};
-    my @num	= split ' ', $Config::Config{'sig_num'};
+    my @num	= split ' ', $num;
 
     @name			or die 'No signals defined';
     @name == @num		or die 'Signal name/number mismatch';
